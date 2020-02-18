@@ -1,9 +1,10 @@
 import React from "react"
 
+
 const List = (props) => {
     // データを削除する機能
     const handleDelete = () => {
-
+        
     }
 
     const users = props.users.map((user)=>{

@@ -38,6 +38,14 @@ mongoose.connect(url, err=>{
         })
     })
 
+    app.get("/api/user", (req, res)=>{
+        // モデルから全てのデータを取得する
+        User.find({}, (err, userArray)=>{ // find(条件, コールバック(エラー、ドキュメント))
+            if (err) res.status(500).send(`データ取得に失敗`)
+            res.status(200).send(userArray)
+        })
+    })
+
     // 接続している時にサーバを立てる。
     app.listen(port, err => {
         if (err) {

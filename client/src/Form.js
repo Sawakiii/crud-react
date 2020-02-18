@@ -3,7 +3,7 @@ import React from "react"
 // HTTPメソッドでサーバと通信するためにaxiosをインポート
 import axios from "axios"
 
-const Form = () => {
+const Form = (props) => {
     // データを追加する機能
     const handleSubmit = (e) => {
         e.preventDefault()

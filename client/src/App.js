@@ -1,16 +1,19 @@
 import React from 'react';
 import Form from "./Form"
 import List from "./List"
+import axios from "axios"
 
 const App = () => {
-  const [users, setUsers] = React.useState([
-    {
-      name: "sawaki",
-      age: 100
-    }
-  ])
+  const [users, setUsers] = React.useState([])
   // データを取得する機能
   const handleFetchData = () =>{
+    axios.get("/api/user")
+    .then(res=>{
+      console.log(res.data)
+      setUsers(res.data)
+    }).catch(err=>{
+      console.error(new Error(err))
+    })
   }
 
   return (

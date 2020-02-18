@@ -17,6 +17,8 @@ https://kageura.hatenadiary.jp/entry/2018/01/09/Windows%E7%89%88MongoDB%E3%81%AE
 
 # 参考ドキュメント
 
+https://qiita.com/muijp/items/573247b12ff0bc4e5d3c
+
 mdn公式ドキュメント↓
 https://developer.mozilla.org/ja/docs/Learn/Server-side/Express_Nodejs/mongoose
 
@@ -313,7 +315,7 @@ listening on port 3001
 
 の手順になる。
 
-## クライアント側
+## クライアント側からデータを送る。
 HTTPメソッドを用いるには、fetchもしくはaxiosがあるが、今回はaxiosを使っていく。
 
 ```diff
@@ -350,7 +352,7 @@ const Form = () => {
 export default Form
 ```
 
-## サーバ側
+## サーバ側がデータベースにデータを追加する。
 
 サーバでpostされたデータを受け取る。
 データの保存は、データベースに接続している状態で、モデルのインスタンス.save()で可能だ。
@@ -389,11 +391,101 @@ mongoose.connect(url, err=>{
 ここまでできたら、ターミナルを2つ作成し、片方でappディレクトリ内でnode server.js、もう一方でclientディレクトリ内でyarn startを行い、データを追加してみよう。ブラウザのコンソール、node server.jsの方のターミナルにそれぞれ結果が表示されるはずだ。
 
 # データ一覧を見る機能
+次に、データ一覧を見る機能を作成しよう。
+以下の処理が必要である。
 
+1. クライアント側からデータ一覧をリクエストする
+1. サーバがリクエストを受け取り、データベースに接続してデータ一覧を取得し、クライアント側に送信する
+1. クライアント側がデータ一覧を受け取り表示する。
 
+## クライアント側からデータ一覧をリクエストする
 
+App.jsに、データ一覧を取得するボタンが押された時の処理を記述しよう。サーバとの通信になるので、またaxiosを使う。
 
+```diff
+import React from 'react';
+import Form from "./Form"
+import List from "./List"
++ import axios from "axios"
+const App = () => {
+  const [users, setUsers] = React.useState([
+-    {
+-      name: "sawaki",
+-      age: 100
+-    }
+  ])
+  // データを取得する機能
+  const handleFetchData = () =>{
++     axios.get("/api/user")
++     .then(res=>{
++       console.log(res)
++       
++     }).catch(err=>{
++       console.error(new Error(err))
++     })
++   }
+```
 
+ここまでは、まだresをコンソールにのみ表示する機能である。
+
+## サーバがリクエストを受け取り、データベースに接続してデータ一覧を取得し、クライアント側に送信する
+
+サーバにget時の処理を書いていく。
+
+```
+app.get("/api/user", (req, res)=>{
+        // モデルから全てのデータを取得する
+        User.find({}, (err, userArray)=>{ // find(条件, コールバック(エラー、ドキュメント))
+            if (err) res.status(500).send(`データ取得に失敗`)
+            res.status(200).send(userArray)
+        })
+    })
+```
+
+## クライアント側がデータ一覧を受け取り表示する。
+この状態で、片方でappディレクトリ内でnode server.js、もう一方でclientディレクトリ内でyarn startを行って、データを取得しよう。
+ブラウザのコンソールを見ると色々書かれているが、よく見るとほしかったデータはオブジェクト内のdataというところにある。
+なので、App.jsでこのdataを用いてステートを設定しよう。
+
+```diff
+const [users, setUsers] = React.useState([])
+  // データを取得する機能
+  const handleFetchData = () =>{
+    axios.get("/api/user")
+    .then(res=>{
++      console.log(res.data)
++      setUsers(res.data)
+    }).catch(err=>{
+      console.error(new Error(err))
+    })
+  }
+```
+
+# 削除機能
+
+削除の機能は、
+
+1. 一意でデータを特定する。
+1. 該当するデータを削除する。
+1. 新しいデータ一覧を取得する。
+1. 新しいデータをsetUsersする。
+
+になる。
+
+サーバとクライアントの処理を考えると、
+
+1. クライアント側でidでデータを特定し、サーバ側に送る
+1. サーバ側がデータベースからidで検索し、該当するデータを削除する。
+1. サーバ側で新しいデータ一覧を取得し、クライアント側に送る
+1. クライアント側で新しいデータをsetUsersする。
+
+になる。
+
+## クライアント側でidでデータを特定し、サーバ側に送る
+
+先ほどの一覧機能の時にstateを変更し、その時に一意のidもわたっているので、それを用いて処理を行う。
+List.jsでは、props.user._idで取り出せる。
+ただ、axios.deleteを使うと引数でidを渡せないので、axios({設定})の書き方を使う。
 
 
 
