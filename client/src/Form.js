@@ -1,19 +1,9 @@
 import React from "react"
 
-// サーバとの通信のためのaxiosをインポート
-import axios from "axios"
-
 const Form = () => {
+    // データを追加する機能
     const handleSubmit = (e) => {
         e.preventDefault()
-        axios.post("/api/user", {
-                name: e.target.name.value,
-                email: e.target.email.value
-        }).then(res => {
-            console.log(res)
-        }).catch(err=>{
-            console.error(new Error(err))
-        })
     }
 
     return (
