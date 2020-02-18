@@ -10,7 +10,7 @@ const List = (props) => {
         return (
         <li>
             <h3>名前 : {user.name}</h3>
-            <h3>メール : {user.email}</h3>
+            <h3>メール : {user.age}</h3>
             <button onClick={handleDelete}>delete</button>
         </li>
         )
