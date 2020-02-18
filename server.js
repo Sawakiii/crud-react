@@ -46,6 +46,17 @@ mongoose.connect(url, err=>{
         })
     })
 
+    app.delete("/api/user", (req, res)=>{
+        console.log(req.body)
+        User.findByIdAndRemove(req.body.id, err=>{
+            if (err) res.status(500).send()
+            User.find({}, (err, userArray)=>{
+                if (err) res.status(500).send(`データ取得に失敗`)
+                res.status(200).send(userArray)
+            })
+        })
+    })
+
     // 接続している時にサーバを立てる。
     app.listen(port, err => {
         if (err) {

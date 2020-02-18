@@ -485,9 +485,62 @@ const [users, setUsers] = React.useState([])
 
 先ほどの一覧機能の時にstateを変更し、その時に一意のidもわたっているので、それを用いて処理を行う。
 List.jsでは、props.user._idで取り出せる。
-ただ、axios.deleteを使うと引数でidを渡せないので、axios({設定})の書き方を使う。
+ただ、axios.deleteを使うと引数でidを渡せないので、List.jsではaxios({設定})の書き方を使う。
 
+```diff
+import React from "react"
++ import axios from "axios"
 
+const List = (props) => {
+    // データを削除する機能
+    const handleDelete = () => {
++        axios({
++            method: "delete",
++            url: "/api/user",
++            data: {
++                id: props.user._id
++            }
++        }).then(res=>{
++            
++        }).catch(err=>{
++            console.error(new Error(err))
++        })
+    }
+```
+
+## サーバ側がデータベースからidで検索し、該当するデータを削除する。
+
+server.jsに、app.deleteの処理を加えるだけである。id検索からデータの削除は、モデルのプロパティのfindByIdAndRemoveを用いる。
+
+```diff
+app.delete("/api/user", (req, res)=>{
+        console.log(req.body)
+        User.findByIdAndRemove(req.body.id, err=>{
+            // コールバック処理
+        })
+    })
+```
+
+## サーバ側で新しいデータ一覧を取得し、クライアント側に送る
+
+server.jsのUser.findByIdAndRemove処理が終わった後に、データ一覧を取得して送ればよいので、コールバック処理にその内容を記述する。
+
+```diff
+app.delete("/api/user", (req, res)=>{
+        console.log(req.body)
+        User.findByIdAndRemove(req.body.id, err=>{
++            // データ一覧を取得する。
++            User.find({}, err, userArray=>{
++                if (err) res.status(500).send(`データ取得に失敗`)
++                res.status(200).send(userArray)
++            })
+        })
+    })
+```
+
+## クライアント側で新しいデータをsetUsersする。
+
+あとは、resで送られた内容を取り出してList.jsでsetUsersする。
 
 
 

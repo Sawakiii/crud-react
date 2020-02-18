@@ -9,6 +9,7 @@ const App = () => {
   const handleFetchData = () =>{
     axios.get("/api/user")
     .then(res=>{
+      console.log(res)
       console.log(res.data)
       setUsers(res.data)
     }).catch(err=>{
