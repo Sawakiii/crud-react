@@ -542,5 +542,22 @@ app.delete("/api/user", (req, res)=>{
 
 あとは、resで送られた内容を取り出してList.jsでsetUsersする。
 
+```
+const handleDelete = (id) => {
+        axios({
+            method: "delete",
+            url: "/api/user",
+            data: {
+                id: id
+            }
+        }).then(res=>{
+            console.log(res)
+            props.setUsers(res.data)
+        }).catch(err=>{
+            console.error(new Error(err))
+        })
+    }
+```
+
 
 
